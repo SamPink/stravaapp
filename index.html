@@ -193,7 +193,7 @@
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ question: "give me a detailed summary of my training this month" }),
+          body: JSON.stringify({ question: "give me a summary of my training this month" }),
         });
         if (!response.ok) {
           throw new Error('Network response was not ok');
