@@ -1,7 +1,6 @@
 <html>
 
 <head>
-  <base href="https://websim.example.com/virtual-trainer/">
   <title>AI-Powered Training Assistant</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://cdn.jsdelivr.net/npm/@n8n/chat/dist/style.css" rel="stylesheet" />
@@ -171,7 +170,7 @@
       },
     });
 
-    const API_BASE_URL = 'https://7708fbed-5f31-4ed9-8e88-c431322b41d6-00-wvtj289bjmmm.spock.replit.dev';
+    const API_BASE_URL = 'https://stravaapp.onrender.com';
 
     async function fetchData(endpoint) {
       try {
@@ -270,7 +269,7 @@
       if (data) {
         list.innerHTML = data.map(effort => `
             <li>
-              ${effort.name} - ${effort.distance.toFixed(2)} km in 
+              ${effort.name} - ${effort.distance.toFixed(2) / 1000} km in 
               ${Math.floor(effort.moving_time / 60)}:${(effort.moving_time % 60).toString().padStart(2, '0')}
             </li>
           `).join('');
