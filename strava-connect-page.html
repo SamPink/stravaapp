@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connect to Strava</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+
+        .container {
+            text-align: center;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        .strava-connect {
+            display: inline-block;
+            background-color: #fc4c02;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: bold;
+            margin-top: 20px;
+            transition: background-color 0.3s;
+        }
+
+        .strava-connect:hover {
+            background-color: #e34402;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Connect Your Strava Account</h1>
+        <p>Click the button below to connect your Strava account and start syncing your activities.</p>
+        <a href="https://www.strava.com/oauth/authorize?client_id=130724&response_type=code&redirect_uri=https://virtualtrainingpartner.app.n8n.cloud/webhook/BmpyqFgDtle8JUqK/webhook/strava-auth&scope=activity:read_all"
+            class="strava-connect">
+            Connect with Strava
+        </a>
+    </div>
+</body>
+
+</html>

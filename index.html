@@ -1,0 +1,259 @@
+<html>
+
+<head>
+  <base href="https://7708fbed-5f31-4ed9-8e88-c431322b41d6-00-wvtj289bjmmm.spock.replit.dev">
+  <title>AI-Powered Training Assistant</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://cdn.jsdelivr.net/npm/@n8n/chat/dist/style.css" rel="stylesheet" />
+  <style>
+    :root {
+      --primary-color: #6200EA;
+      --secondary-color: #03DAC6;
+      --background-color: #121212;
+      --surface-color: #1E1E1E;
+      --on-surface-color: #E1E1E1;
+      --text-color: #FFFFFF;
+
+      --chat--color-primary: #6200EA;
+      --chat--color-primary-shade-50: #5600D0;
+      --chat--color-primary-shade-100: #4B00B6;
+      --chat--color-secondary: #03DAC6;
+      --chat--color-secondary-shade-50: #02C4B2;
+      --chat--color-secondary-shade-100: #02AE9E;
+      --chat--color-white: #FFFFFF;
+      --chat--color-light: #E1E1E1;
+      --chat--color-light-shade-50: #CCCCCC;
+      --chat--color-light-shade-100: #B8B8B8;
+      --chat--color-medium: #9E9E9E;
+      --chat--color-dark: #121212;
+      --chat--color-disabled: #6E6E6E;
+      --chat--color-typing: #03DAC6;
+
+      --chat--header--background: var(--surface-color);
+      --chat--header--color: var(--text-color);
+      --chat--message--bot--background: var(--surface-color);
+      --chat--message--bot--color: var(--text-color);
+      --chat--message--user--background: var(--primary-color);
+      --chat--message--user--color: var(--text-color);
+      --chat--toggle--background: var(--secondary-color);
+      --chat--toggle--color: var(--background-color);
+    }
+
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: var(--background-color);
+      color: var(--text-color);
+      line-height: 1.6;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 100%;
+      padding: 1rem;
+    }
+
+    header {
+      background-color: var(--surface-color);
+      padding: 1rem;
+      text-align: center;
+    }
+
+    h1,
+    h2 {
+      margin-bottom: 0.5rem;
+    }
+
+    .section {
+      background-color: var(--surface-color);
+      border-radius: 8px;
+      padding: 1rem;
+      margin-top: 1rem;
+    }
+
+    .section h2 {
+      color: var(--secondary-color);
+    }
+
+    #chart,
+    #weeklyMileageChart {
+      width: 100%;
+      height: 200px;
+    }
+
+    .loading {
+      text-align: center;
+      color: var(--secondary-color);
+    }
+
+    @media (min-width: 768px) {
+      .container {
+        max-width: 750px;
+        margin: 0 auto;
+      }
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+  <header>
+    <h1>AI-Powered Training Assistant</h1>
+  </header>
+
+  <div class="container">
+    <section id="totalDistance" class="section">
+      <h2>Total Distance (Last 30 Days)</h2>
+      <p id="totalDistanceValue" class="loading">Loading...</p>
+    </section>
+
+    <section id="averagePace" class="section">
+      <h2>Average Pace (Last 30 Days)</h2>
+      <p id="averagePaceValue" class="loading">Loading...</p>
+    </section>
+
+    <section id="weeklyMileageTrend" class="section">
+      <h2>Weekly Mileage Trend</h2>
+      <canvas id="weeklyMileageChart"></canvas>
+    </section>
+
+    <section id="bestEfforts" class="section">
+      <h2>Best Efforts</h2>
+      <ul id="bestEffortsList" class="loading">Loading...</ul>
+    </section>
+
+    <section id="recentActivities" class="section">
+      <h2>Recent Activities</h2>
+      <ul id="recentActivitiesList" class="loading">Loading...</ul>
+    </section>
+  </div>
+
+  <script type="module">
+    import { createChat } from 'https://cdn.jsdelivr.net/npm/@n8n/chat/dist/chat.bundle.es.js';
+
+    createChat({
+      webhookUrl: 'https://virtualtrainingpartner.app.n8n.cloud/webhook/9c158c34-af37-4783-91e7-007053295b61/chat',
+      mode: 'window',
+      chatInputKey: 'chatInput',
+      chatSessionKey: 'sessionId',
+      metadata: {},
+      showWelcomeScreen: true,
+      defaultLanguage: 'en',
+      initialMessages: [
+        'Welcome to your AI-Powered Training Assistant! 🏋️‍♂️',
+        'How can I help optimize your workout today?'
+      ],
+      i18n: {
+        en: {
+          title: 'Training Assistant',
+          subtitle: "Let's optimize your workout routine!",
+          footer: 'Powered by AI',
+          getStarted: 'Start Training Chat',
+          inputPlaceholder: 'Ask about your training...',
+        },
+      },
+    });
+
+    const API_BASE_URL = 'https://7708fbed-5f31-4ed9-8e88-c431322b41d6-00-wvtj289bjmmm.spock.replit.dev';
+
+    async function fetchData(endpoint) {
+      try {
+        const response = await fetch(`${API_BASE_URL}${endpoint}`);
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return await response.json();
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        return null;
+      }
+    }
+
+    async function updateTotalDistance() {
+      const data = await fetchData('/activities/total_distance/last_n_days/30');
+      if (data) {
+        document.getElementById('totalDistanceValue').textContent = `${data.total_distance.toFixed(2)} km`;
+      } else {
+        document.getElementById('totalDistanceValue').textContent = 'Unable to fetch data';
+      }
+    }
+
+    async function updateAveragePace() {
+      const data = await fetchData('/activities/average_pace/last_n_days/30');
+      if (data) {
+        const paceInMinPerKm = 60 / data.average_pace;
+        const minutes = Math.floor(paceInMinPerKm);
+        const seconds = Math.round((paceInMinPerKm - minutes) * 60);
+        document.getElementById('averagePaceValue').textContent = `${minutes}:${seconds.toString().padStart(2, '0')} min/km`;
+      } else {
+        document.getElementById('averagePaceValue').textContent = 'Unable to fetch data';
+      }
+    }
+
+    async function updateWeeklyMileageTrend() {
+      const data = await fetchData('/activities/weekly_mileage_trend');
+      if (data) {
+        const ctx = document.getElementById('weeklyMileageChart').getContext('2d');
+        new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: data.map(item => item.week.split('T')[0]),
+            datasets: [{
+              label: 'Weekly Distance (km)',
+              data: data.map(item => item.weekly_distance_km),
+              borderColor: '#03DAC6',
+              tension: 0.1
+            }]
+          },
+          options: {
+            responsive: true,
+            scales: {
+              y: {
+                beginAtZero: true
+              }
+            }
+          }
+        });
+      }
+    }
+
+    async function updateBestEfforts() {
+      const data = await fetchData('/activities/best_efforts');
+      const list = document.getElementById('bestEffortsList');
+      if (data) {
+        list.innerHTML = data.map(effort => `
+          <li>
+            ${effort.name} - ${effort.distance.toFixed(2)} km in 
+            ${Math.floor(effort.moving_time / 60)}:${(effort.moving_time % 60).toString().padStart(2, '0')}
+          </li>
+        `).join('');
+      } else {
+        list.innerHTML = '<li>Unable to fetch data</li>';
+      }
+    }
+
+    async function updateRecentActivities() {
+      const data = await fetchData('/activities/last_n_days/7');
+      const list = document.getElementById('recentActivitiesList');
+      if (data) {
+        list.innerHTML = data.map(activity => `
+          <li>
+            ${new Date(activity.start_date).toLocaleDateString()} - ${activity.name} 
+            (${activity.distance.toFixed(2)} km)
+          </li>
+        `).join('');
+      } else {
+        list.innerHTML = '<li>Unable to fetch data</li>';
+      }
+    }
+
+    // Call all update functions
+    updateTotalDistance();
+    updateAveragePace();
+    updateWeeklyMileageTrend();
+    updateBestEfforts();
+    updateRecentActivities();
+  </script>
+</body>
+
+</html>
